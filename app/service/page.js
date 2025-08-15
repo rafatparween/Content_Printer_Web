@@ -47,6 +47,39 @@ export default function ServicesPage() {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
+  const [jivoReady, setJivoReady] = useState(false);
+  
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+  
+      const script = document.createElement("script");
+      script.src = "//code.jivosite.com/widget/kd9uAKn19v";
+      script.async = true;
+  
+      script.onload = () => {
+        const waitForJivo = setInterval(() => {
+          if (typeof window !== "undefined" && window.jivo_api) {
+            setJivoReady(true);
+            clearInterval(waitForJivo);
+          }
+        }, 500);
+      };
+  
+      document.body.appendChild(script);
+  
+      return () => {
+        // Cleanup: remove script and prevent memory leaks
+        document.body.removeChild(script);
+      };
+    }, []);
+  
+    const handleSetupClick = () => {
+      if (typeof window !== "undefined" && jivoReady && window.jivo_api) {
+        window.jivo_api.open();
+      } else {
+        alert("Chat is still loading. Please wait a moment...");
+      }
+    };
 
   return (
     <>

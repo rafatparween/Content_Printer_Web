@@ -2,13 +2,14 @@
 import { usePathname } from 'next/navigation';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
-import { useLayoutEffect, useRef,useEffect } from 'react';
+import { useLayoutEffect, useRef,useEffect,useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import Image from 'next/image';
 import BlogHeader from './BlogHeader';
 import BlogDigonode from './BlogDignode';
 import BlogFooter from './BlogFooter';
+import JivoChat from '../JivoChat';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -63,6 +64,55 @@ const sectionRefs = useRef([]);
   }, [pathname]);
 
 
+    const [jivoReady, setJivoReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Prevent adding the script multiple times
+    if (!document.getElementById("jivo-script")) {
+      const script = document.createElement("script");
+      script.src = "//code.jivosite.com/widget/kd9uAKn19v";
+      script.async = true;
+      script.id = "jivo-script";
+
+      script.onload = () => {
+        const waitForJivo = setInterval(() => {
+          if (typeof window !== "undefined" && window.jivo_api) {
+            setJivoReady(true);
+            clearInterval(waitForJivo);
+          }
+        }, 500);
+      };
+
+      document.body.appendChild(script);
+    } else {
+      // If script already exists, check if jivo_api is ready
+      if (window.jivo_api) {
+        setJivoReady(true);
+      } else {
+        const waitForJivo = setInterval(() => {
+          if (window.jivo_api) {
+            setJivoReady(true);
+            clearInterval(waitForJivo);
+          }
+        }, 500);
+      }
+    }
+
+    // Do not remove the script on unmount to avoid reloading the widget
+    return () => {};
+  }, []);
+
+  const handleSetupClick = () => {
+    if (typeof window !== "undefined" && jivoReady && window.jivo_api) {
+      window.jivo_api.open();
+    } else {
+      alert("Chat is still loading. Please wait a moment...");
+    }
+  };
+
+
 
   return (
     <>
@@ -76,7 +126,7 @@ const sectionRefs = useRef([]);
 
       <div className="bg-gray-950 text-white overflow-x-hidden">
         <BlogHeader />
-        <BlogDigonode/>
+    
 
         {/* Hero Section */}
         <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-950 overflow-hidden pt-20 will-change-transform will-change-opacity">
@@ -140,53 +190,64 @@ const sectionRefs = useRef([]);
         <div className="container mx-auto px-6 py-16 -mt-16 relative z-10">
           {/* Featured Post */}
           <section className="animate-section mb-16">
-            <motion.div 
-              className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-cyan-400 transition-colors"
-              whileHover={{ y: -5 }}
-            >
-              <div className="md:flex">
-                <div className="md:w-1/2 bg-gray-800 h-64 md:h-auto flex items-center justify-center">
-                  <div className="w-full h-full bg-gradient-to-br from-blue-900/30 to-gray-900 flex items-center justify-center">
-                    <Image 
-                      src="/blog4.jpg" 
-                      alt="Featured blog post about refurbished printers" 
-                      width={500} 
-                      height={300} 
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                </div>
-                <div className="md:w-1/2 p-8">
-                  <div className="flex items-center mb-4">
-                    <span className="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full">NEW</span>
-                    <span className="text-gray-500 text-sm ml-4">June 15, 2023</span>
-                  </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                    Diagnose the problem and resolve it effectively
-                  </h2>
-                   <h1 className="text-2xl md:text-2xl font-bold text-white mb-4">
-                    Contact Support – Chat Live
-                  </h1>
-                  <p className="text-gray-400 mb-6">
-                    In this Support Hub, you’ll have instant access to live assistance for the most common printer issues — from setup and connectivity errors to troubleshooting performance problems. Simply click to start a live chat with one of our experienced support agents and receive step-by-step guidance in real time, so you can get your printer back up and running without delay
-                  </p>
-                  <div className="flex flex-wrap gap-3 mb-6">
-                    {['Refurbished', 'Buying Guide', 'Printers'].map((tag, i) => (
-                      <span key={i} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <button className="text-cyan-400 font-medium flex items-center group">
-                    Read Article
-                    <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </section>
+  <motion.div 
+    className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-cyan-400 transition-colors"
+    whileHover={{ y: -5 }}
+  >
+    <div className="md:flex">
+      <div className="md:w-1/2 bg-gray-800 h-64 md:h-auto flex items-center justify-center">
+        <div className="w-full h-full bg-gradient-to-br from-blue-900/30 to-gray-900 flex items-center justify-center">
+          <Image 
+            src="/blog4.jpg" 
+            alt="Featured blog post about refurbished printers" 
+            width={500} 
+            height={300} 
+            className="object-cover w-full h-full"
+          />
+        </div>
+      </div>
+      <div className="md:w-1/2 p-8">
+        <div className="flex items-center mb-4">
+          {/* <span className="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full">NEW</span> */}
+          {/* <span className="text-gray-500 text-sm ml-4">June 15, 2023</span> */}
+        </div>
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          Diagnose the problem and resolve it effectively
+        </h2>
+        <h1 className="text-3xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-6">
+          Contact Support – Chat Live
+        </h1>
+        <p className="text-gray-400 mb-6 text-lg leading-relaxed">
+          Instant expert help for printer setup, connectivity, and performance issues.<br/><br/>
+          
+          • Printer installation and configuration<br/>
+          • Network connectivity and wireless setup<br/>
+          • Print quality issues and maintenance<br/><br/>
+         
+          
+          Simply click to start a live chat with one of our experienced support agents available 24/7. You'll receive step-by-step guidance in real time, with screen sharing options available for complex issues.
+        </p>
+        <div className="flex flex-wrap gap-3 mb-2">
+        </div>
+
+        <button className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-white font-medium flex items-center group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30 hover:scale-105"
+        onClick={handleSetupClick}
+        disabled={!jivoReady}>
+        
+          <span className="relative z-10">
+            Click Here For Chat Support
+            
+          </span>
+          <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></span>
+          
+        </button>
+      </div>
+    </div>
+  </motion.div>
+</section>
+
+
+              <BlogDigonode/>
 
           {/* Blog Categories */}
           <section className="animate-section mb-16">
@@ -336,6 +397,7 @@ const sectionRefs = useRef([]);
         </div>
       </div>
       <BlogFooter/>
+      <JivoChat/>
     </>
   );
 }

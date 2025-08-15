@@ -337,6 +337,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useState,useEffect } from 'react';
 
 const BlogDigonode = () => {
   // Printer service data
@@ -391,6 +392,57 @@ const BlogDigonode = () => {
     }
   ];
 
+
+  
+      const [jivoReady, setJivoReady] = useState(false);
+  
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+  
+      // Prevent adding the script multiple times
+      if (!document.getElementById("jivo-script")) {
+        const script = document.createElement("script");
+        script.src = "//code.jivosite.com/widget/kd9uAKn19v";
+        script.async = true;
+        script.id = "jivo-script";
+  
+        script.onload = () => {
+          const waitForJivo = setInterval(() => {
+            if (typeof window !== "undefined" && window.jivo_api) {
+              setJivoReady(true);
+              clearInterval(waitForJivo);
+            }
+          }, 500);
+        };
+  
+        document.body.appendChild(script);
+      } else {
+        // If script already exists, check if jivo_api is ready
+        if (window.jivo_api) {
+          setJivoReady(true);
+        } else {
+          const waitForJivo = setInterval(() => {
+            if (window.jivo_api) {
+              setJivoReady(true);
+              clearInterval(waitForJivo);
+            }
+          }, 500);
+        }
+      }
+  
+      // Do not remove the script on unmount to avoid reloading the widget
+      return () => {};
+    }, []);
+  
+    const handleSetupClick = () => {
+      if (typeof window !== "undefined" && jivoReady && window.jivo_api) {
+        window.jivo_api.open();
+      } else {
+        alert("Chat is still loading. Please wait a moment...");
+      }
+    };
+  
+
   return (
     <div className="bg-gray-950 min-h-screen py-20 px-4">
       {/* Glow Effects */}
@@ -418,7 +470,7 @@ const BlogDigonode = () => {
               />
             </div> */}
             <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-              Hewlett Printers Solutions
+              Hewlett Printers Solution
             </h1>
           </div>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -451,7 +503,9 @@ const BlogDigonode = () => {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
                   <p className="text-gray-300 mb-5 flex-grow">{service.description}</p>
-                  <button className="mt-auto bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-2 rounded-full hover:opacity-90 transition-opacity flex items-center">
+                  <button className="mt-auto bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-2 rounded-full hover:opacity-90 transition-opacity flex items-center"
+                   onClick={handleSetupClick}
+        disabled={!jivoReady}>
                     Get Help
                     <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -484,7 +538,7 @@ const BlogDigonode = () => {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
-                Call Now: (888) 123-4567
+                Call Now: 808-468-1018
               </button>
               <button className="bg-transparent border-2 border-cyan-400 text-cyan-400 font-bold px-8 py-3 rounded-lg hover:bg-cyan-400/10 transition-colors flex items-center justify-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
