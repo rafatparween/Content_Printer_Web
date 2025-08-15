@@ -1,81 +1,109 @@
 "use client"
+import { usePathname } from 'next/navigation';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef,useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import Image from 'next/image';
+import BlogHeader from './BlogHeader';
+import BlogDigonode from './BlogDignode';
+import BlogFooter from './BlogFooter';
+
 gsap.registerPlugin(ScrollTrigger);
 
 export default function BlogPage() {
-  const sectionRefs = useRef([]);
+const sectionRefs = useRef([]);
+  const pathname = usePathname();
 
-  useLayoutEffect(() => {
-    // Animation for all sections
+  useEffect(() => {
+    // Kill all ScrollTriggers before re-init
+    ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+
+    // Animate sections
     gsap.utils.toArray(".animate-section").forEach((section, i) => {
       gsap.from(section, {
         scrollTrigger: {
           trigger: section,
           start: "top 80%",
-          toggleActions: "play none none none"
+          toggleActions: "play none none none",
+          markers: false,
         },
         opacity: 0,
         y: 50,
         duration: 0.8,
         delay: i * 0.1,
-        ease: "power2.out"
+        ease: "power2.out",
       });
     });
 
-    // Blog cards animation
-    gsap.utils.toArray('.blog-card').forEach((card, i) => {
+    // Animate blog cards
+    gsap.utils.toArray(".blog-card").forEach((card, i) => {
       gsap.from(card, {
         scrollTrigger: {
           trigger: card,
           start: "top 80%",
-          toggleActions: "play none none none"
+          toggleActions: "play none none none",
+          markers: false,
         },
         opacity: 0,
         y: 100,
         duration: 0.8,
         delay: i * 0.1,
-        ease: "back.out(1.2)"
+        ease: "back.out(1.2)",
       });
     });
 
+    // Refresh ScrollTrigger after mounting
+    ScrollTrigger.refresh();
+
     return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, []);
+  }, [pathname]);
+
+
 
   return (
     <>
-      <Head>
-        <title>Blog |Hewlett Printers Solution</title>
-        <meta name="description" content="Expert insights on printers, maintenance, and printing technology from Hewlett Printers Solution." />
+       <Head>
+        <title>Hewlett Hub Blog | Hewlett Printers Solutions</title>
+        <meta
+          name="description"
+          content="Expert insights on printers, maintenance, and printing technology from Hewlett Printers Solution."
+        />
       </Head>
 
       <div className="bg-gray-950 text-white overflow-x-hidden">
+        <BlogHeader />
+        <BlogDigonode/>
+
         {/* Hero Section */}
-        <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-950 overflow-hidden pt-20">
-          {/* Animated background elements */}
-          <svg 
+        <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-950 overflow-hidden pt-20 will-change-transform will-change-opacity">
+          {/* Animated background lines */}
+          <svg
             className="background-lines absolute inset-0 w-full h-full opacity-10"
             xmlns="http://www.w3.org/2000/svg"
           >
             {Array.from({ length: 20 }).map((_, i) => (
-              <line 
+              <line
                 key={i}
-                x1={i * 5 + '%'} 
-                y1="100%" 
-                x2={i * 5 + '%'} 
-                y2="100%" 
-                stroke="url(#lineGradient)" 
+                x1={i * 5 + "%"}
+                y1="100%"
+                x2={i * 5 + "%"}
+                y2="100%"
+                stroke="url(#lineGradient)"
                 strokeWidth="1"
               />
             ))}
             <defs>
-              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <linearGradient
+                id="lineGradient"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
                 <stop offset="0%" stopColor="#3B82F6" stopOpacity="0" />
                 <stop offset="50%" stopColor="#3B82F6" stopOpacity="1" />
                 <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
@@ -84,21 +112,23 @@ export default function BlogPage() {
           </svg>
 
           <div className="container mx-auto px-6 relative z-10 text-center">
-            <motion.h1 
+            <motion.h1
               className="text-4xl md:text-6xl font-bold mb-6"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
+              key={pathname}
             >
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-                Hewlett Hub Blog
+               Hewlett Printers Solution
               </span>
             </motion.h1>
-            <motion.p 
+            <motion.p
               className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
+              key={pathname + "subtitle"}
             >
               Expert insights on printing technology and solutions
             </motion.p>
@@ -132,10 +162,13 @@ export default function BlogPage() {
                     <span className="text-gray-500 text-sm ml-4">June 15, 2023</span>
                   </div>
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                    The Complete Guide to Buying Refurbished Printers
+                    Diagnose the problem and resolve it effectively
                   </h2>
+                   <h1 className="text-2xl md:text-2xl font-bold text-white mb-4">
+                    Contact Support – Chat Live
+                  </h1>
                   <p className="text-gray-400 mb-6">
-                    Learn how to choose the perfect refurbished printer for your needs while saving up to 70% compared to new models. Our experts break down what to look for in a quality refurbished printer.
+                    In this Support Hub, you’ll have instant access to live assistance for the most common printer issues — from setup and connectivity errors to troubleshooting performance problems. Simply click to start a live chat with one of our experienced support agents and receive step-by-step guidance in real time, so you can get your printer back up and running without delay
                   </p>
                   <div className="flex flex-wrap gap-3 mb-6">
                     {['Refurbished', 'Buying Guide', 'Printers'].map((tag, i) => (
@@ -302,6 +335,7 @@ export default function BlogPage() {
           </section>
         </div>
       </div>
+      <BlogFooter/>
     </>
   );
 }
